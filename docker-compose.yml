@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MTM_MODEL: ${MTM_MODEL:-claude-opus-4-8}
+      MTM_CORS_ORIGINS: ${MTM_CORS_ORIGINS:-http://localhost:3000}
+      MTM_DB_PATH: ${MTM_DB_PATH:-/app/data/mtm.sqlite3}
+      MTM_ADMIN_KEY: ${MTM_ADMIN_KEY:-}
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
